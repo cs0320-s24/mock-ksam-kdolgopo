@@ -22,6 +22,12 @@
     margin: auto;
     display: block;
 }
+.button {
+  margin: auto;
+  display: block;
+  color: blue;
+  background-color: aquamarine;
+}
 
 /* TODO WITH TA: Style your new button! */
 /* TODO: Add some other CSS change! */
