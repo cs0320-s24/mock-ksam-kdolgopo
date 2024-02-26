@@ -5,7 +5,8 @@ import { ControlledInput } from "./ControlledInput";
 interface REPLInputProps {
   history: string[];
   setHistory: Dispatch<SetStateAction<string[]>>;
-  mode: string;
+  mode: "brief" | "verbose";
+  toggleMode: () => void;
 }
 // You can use a custom interface or explicit fields or both! An alternative to the current function header might be:
 // REPLInput(history: string[], setHistory: Dispatch<SetStateAction<string[]>>)
@@ -21,18 +22,30 @@ export function REPLInput(props: REPLInputProps) {
     setCount(count + 1);
     // CHANGED
     if (commandString == "mode") {
-      changeFormat();
-      //} //else if (commandString exists in CommandMap) {
-      // str commandName = commandString
-      // output = commandStringOutput - get it from the function
-      // depending on the current format, display a formatted entry in the history
-      // } else { error handling }
+      props.toggleMode();
+      const newMode = props.mode === "brief" ? "verbose" : "brief";
 
-      // have a map from CommandName to Function
-      // create random string "output" as a placeholder for Function
-      // return the "output" string from the map when the command is entered
+      // Prepare and format the history entry based on the mode BEFORE the toggle.
+      const formattedEntry =
+        props.mode === "brief"
+          ? `Switched to verbose mode`
+          : `Switched to brief mode`;
+
+      // Update the history with the new entry
+      props.setHistory([...props.history, formattedEntry]);
+    } else {
+      // Handle other commands here. For now, let's just add the commandString to the history.
+      // In a real application, you might have more complex logic to process commands and produce output.
+      const output = `None`; // Placeholder for actual command output
+      const formattedEntry =
+        props.mode === "verbose"
+          ? `Command: ${commandString}\n ${output}`
+          : output;
+
+      props.setHistory([...props.history, formattedEntry]);
     }
-    props.setHistory([...props.history, commandString]);
+
+    // Clear the command input
     setCommandString("");
   }
 
