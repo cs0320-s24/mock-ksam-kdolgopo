@@ -12,3 +12,5 @@
 
 # Collaboration
 *(state all of your sources of collaboration past your project partner. Please refer to the course's collaboration policy for any further questions.)*
+
+    Mock Gearup Solution Code
