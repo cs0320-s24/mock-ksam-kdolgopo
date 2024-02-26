@@ -19,7 +19,7 @@ export function REPLHistory(props: REPLHistoryProps) {
             <div key={index}>
               <strong>{parts[0]}</strong>
               <br />
-              Output: {parts[1]}
+              {parts[1]}
             </div>
           );
         })}

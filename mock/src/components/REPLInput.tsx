@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import "../styles/main.css";
 import { ControlledInput } from "./ControlledInput";
+import CSVLoader from "./CSV";
 
 interface REPLInputProps {
   history: string[];
@@ -14,12 +15,11 @@ export function REPLInput(props: REPLInputProps) {
   // Remember: let React manage state in your webapp.
   // Manages the contents of the input box
   const [commandString, setCommandString] = useState<string>("");
-  // TODO WITH TA : add a count state
-  const [count, setCount] = useState<number>(0);
+
+  const [currentFilePath, setCurrentFilePath] = useState("");
 
   // This function is triggered when the button is clicked.
   function handleSubmit(commandString: string) {
-    setCount(count + 1);
     // CHANGED
     if (commandString == "mode") {
       props.toggleMode();
@@ -33,10 +33,14 @@ export function REPLInput(props: REPLInputProps) {
 
       // Update the history with the new entry
       props.setHistory([...props.history, formattedEntry]);
+    } else if (commandString.includes("load_file")) {
+      const [command, filePath] = commandString.split(" ");
+      setCurrentFilePath(filePath);
+      console.log(`Loaded dataset from ${filePath}`);
     } else {
       // Handle other commands here. For now, let's just add the commandString to the history.
       // In a real application, you might have more complex logic to process commands and produce output.
-      const output = `None`; // Placeholder for actual command output
+      const output = `Output: None`; // Placeholder for actual command output
       const formattedEntry =
         props.mode === "verbose"
           ? `Command: ${commandString}\n ${output}`
@@ -47,14 +51,6 @@ export function REPLInput(props: REPLInputProps) {
 
     // Clear the command input
     setCommandString("");
-  }
-
-  function changeFormat() {
-    if (props.mode == "brief") {
-      props.mode = "verbose";
-    } else {
-      props.mode = "brief";
-    }
   }
 
   /**
@@ -76,9 +72,7 @@ export function REPLInput(props: REPLInputProps) {
         />
       </fieldset>
       {/* TODO: Currently this button just counts up, can we make it push the contents of the input box to the history?*/}
-      <button onClick={() => handleSubmit(commandString)}>
-        Submitted {count} times
-      </button>
+      <button onClick={() => handleSubmit(commandString)}> Submit </button>
     </div>
   );
 }
