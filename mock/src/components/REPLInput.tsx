@@ -36,6 +36,10 @@ export function REPLInput(props: REPLInputProps) {
     } else if (commandString.includes("load_file")) {
       const [command, filePath] = commandString.split(" ");
       setCurrentFilePath(filePath);
+      // Possibile implementation:
+      // return (
+      //   <CSVLoader filePath={filePath}></CSVLoader>
+      // )
       console.log(`Loaded dataset from ${filePath}`);
     } else {
       // Handle other commands here. For now, let's just add the commandString to the history.
