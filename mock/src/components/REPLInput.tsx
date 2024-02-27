@@ -66,7 +66,7 @@ export function REPLInput(props: REPLInputProps) {
 
   function loadHelper(filePath: string) {
     try {
-      <CSVLoader filePath={filePath}></CSVLoader>;
+      // <CSVLoader filePath={filePath}></CSVLoader>;
     } catch (error) {
       console.error(error);
       return "did not load";

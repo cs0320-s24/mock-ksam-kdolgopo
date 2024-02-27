@@ -11,7 +11,6 @@ interface Props {
 
 const CSVLoader: React.FC<Props> = ({ filePath }) => {
   const [currentDataset, setCurrentDataset] = useState<CSVRow[]>([]);
-
   useEffect(() => {
     if (!filePath) return; // Don't proceed if filePath is empty
 
