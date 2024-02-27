@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import "../styles/main.css";
 import { ControlledInput } from "./ControlledInput";
-import CSVLoader from "./CSV";
+import useLoadCSV from "./CSV";
 
 export interface REPLFunction {
   (args: Array<string>): string | string[][];
@@ -66,6 +66,7 @@ export function REPLInput(props: REPLInputProps) {
 
   function loadHelper(filePath: string) {
     try {
+      useLoadCSV(filePath);
       // <CSVLoader filePath={filePath}></CSVLoader>;
     } catch (error) {
       console.error(error);
