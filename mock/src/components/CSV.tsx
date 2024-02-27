@@ -32,7 +32,6 @@ const CSVLoader: React.FC<Props> = ({ filePath }) => {
             const dataset = results.data as CSVRow[];
             setCurrentDataset(dataset);
             console.log(`Dataset from ${filePath} loaded.`);
-            console.log(dataset); // This line prints the loaded CSV data to the console
           },
         });
       } catch (error) {
