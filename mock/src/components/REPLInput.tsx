@@ -3,6 +3,10 @@ import "../styles/main.css";
 import { ControlledInput } from "./ControlledInput";
 import CSVLoader from "./CSV";
 
+export interface REPLFunction {
+  (args: Array<string>): string | string[][];
+}
+
 interface REPLInputProps {
   history: string[];
   setHistory: Dispatch<SetStateAction<string[]>>;
@@ -15,11 +19,39 @@ export function REPLInput(props: REPLInputProps) {
   // Remember: let React manage state in your webapp.
   // Manages the contents of the input box
   const [commandString, setCommandString] = useState<string>("");
-
+  const [commandRegistry, setCommandRegistry] = useState<{
+    [key: string]: REPLFunction;
+  }>({});
   const [currentFilePath, setCurrentFilePath] = useState("");
+
+  // Registering new commands:
+  function registerCommand(commandName: string, commandFunction: REPLFunction) {
+    setCommandRegistry((prevState) => ({
+      // creates a new state by expandin the previous state (adding a new KV pair to it):
+      ...prevState,
+      [commandName]: commandFunction,
+    }));
+  }
 
   // This function is triggered when the button is clicked.
   function handleSubmit(commandString: string) {
+    const [command, ...args] = commandString.trim().split(" ");
+    // Check if the command is in map
+    if (commandRegistry.hasOwnProperty(command)) {
+      const output = commandRegistry[command](args);
+      const formattedEntry =
+        props.mode === "verbose"
+          ? `Command: ${commandString}\n ${output}`
+          : output;
+      
+      props.setHistory([...props.history, formattedEntry]);
+    } else {
+      props.setHistory([...props.history, `Command not found: ${command}`]);
+    }
+    setCommandString("");
+  }
+
+
     // CHANGED
     if (commandString == "mode") {
       props.toggleMode();
@@ -41,6 +73,20 @@ export function REPLInput(props: REPLInputProps) {
       //   <CSVLoader filePath={filePath}></CSVLoader>
       // )
       console.log(`Loaded dataset from ${filePath}`);
+    } else if (commandString.startsWith("search")) {
+      const [, column, value] = commandString.split(" ");
+      // Check if the column is a valid number
+      if (isNaN(parseInt(column))) {
+        // If not a number, find the index of the column name
+        let columnIndex = props.data[0].indexOf(column);
+      } else {
+        // If it's a number, parse it to an integer
+        let columnIndex = parseInt(column);
+      }
+      const searchResults = props.data.filter((row) => {
+        // Check if the value matches the search value
+        return row[columnIndex] === value;
+      });
     } else {
       // Handle other commands here. For now, let's just add the commandString to the history.
       // In a real application, you might have more complex logic to process commands and produce output.
