@@ -39,11 +39,12 @@ export function REPLInput(props: REPLInputProps) {
     // Check if the command is in map
     if (commandRegistry.hasOwnProperty(command)) {
       const output = commandRegistry[command](args);
+      const outputNone = `Output: None`; // Placeholder for actual command output
       const formattedEntry =
         props.mode === "verbose"
           ? `Command: ${commandString}\n ${output}`
           : output;
-      
+
       props.setHistory([...props.history, formattedEntry]);
     } else {
       props.setHistory([...props.history, `Command not found: ${command}`]);
@@ -51,52 +52,40 @@ export function REPLInput(props: REPLInputProps) {
     setCommandString("");
   }
 
+  function load_file(fileName: string) {
+    const [command, filePath] = commandString.split(" ");
+    setCurrentFilePath(filePath);
+    console.log(`Loaded dataset from ${filePath}`);
+  }
 
-    // CHANGED
-    if (commandString == "mode") {
-      props.toggleMode();
-      const newMode = props.mode === "brief" ? "verbose" : "brief";
+  function changeMode() {
+    props.toggleMode();
+    const newMode = props.mode === "brief" ? "verbose" : "brief";
 
-      // Prepare and format the history entry based on the mode BEFORE the toggle.
-      const formattedEntry =
-        props.mode === "brief"
-          ? `Switched to verbose mode`
-          : `Switched to brief mode`;
+    // Prepare and format the history entry based on the mode BEFORE the toggle.
+    const formattedEntry =
+      props.mode === "brief"
+        ? `Switched to verbose mode`
+        : `Switched to brief mode`;
 
-      // Update the history with the new entry
-      props.setHistory([...props.history, formattedEntry]);
-    } else if (commandString.includes("load_file")) {
-      const [command, filePath] = commandString.split(" ");
-      setCurrentFilePath(filePath);
-      console.log(`Loaded dataset from ${filePath}`);
-    } else if (commandString.startsWith("search")) {
-      const [, column, value] = commandString.split(" ");
-      // Check if the column is a valid number
-      if (isNaN(parseInt(column))) {
-        // If not a number, find the index of the column name
-        let columnIndex = props.data[0].indexOf(column);
-      } else {
-        // If it's a number, parse it to an integer
-        let columnIndex = parseInt(column);
-      }
-      const searchResults = props.data.filter((row) => {
-        // Check if the value matches the search value
-        return row[columnIndex] === value;
-      });
+    // Update the history with the new entry
+    props.setHistory([...props.history, formattedEntry]);
+  }
+
+  function searchFile(fileName: string) {
+    const [, column, value] = commandString.split(" ");
+    // Check if the column is a valid number
+    if (isNaN(parseInt(column))) {
+      // If not a number, find the index of the column name
+      let columnIndex = props.data[0].indexOf(column);
     } else {
-      // Handle other commands here. For now, let's just add the commandString to the history.
-      // In a real application, you might have more complex logic to process commands and produce output.
-      const output = `Output: None`; // Placeholder for actual command output
-      const formattedEntry =
-        props.mode === "verbose"
-          ? `Command: ${commandString}\n ${output}`
-          : output;
-
-      props.setHistory([...props.history, formattedEntry]);
+      // If it's a number, parse it to an integer
+      let columnIndex = parseInt(column);
     }
-
-    // Clear the command input
-    setCommandString("");
+    const searchResults = props.data.filter((row) => {
+      // Check if the value matches the search value
+      return row[columnIndex] === value;
+    });
   }
 
   /**
