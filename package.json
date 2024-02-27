@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "@types/react": "^18.2.58"
+    "@types/papaparse": "^5.3.14",
+    "@types/react": "^18.2.58",
+    "papaparse": "^5.4.1"
   }
 }

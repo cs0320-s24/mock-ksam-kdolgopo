@@ -30,6 +30,8 @@ Once cloned:
 
 `npx playwright install` — Installs everything needed to run PlayWright
 
+`npm install papaparse @types/papaparse`
+
 ### Running Mock
 
 `npm start` — This starts a local server that compiles your code in real time.

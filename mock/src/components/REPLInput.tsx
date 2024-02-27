@@ -36,14 +36,18 @@ export function REPLInput(props: REPLInputProps) {
   // This function is triggered when the button is clicked.
   function handleSubmit(commandString: string) {
     const [command, ...args] = commandString.trim().split(" ");
+    if (commandString == "start") {
+      registerCommand("load_file", load_file);
+      registerCommand("mode", changeMode);
+    }
     // Check if the command is in map
-    if (commandRegistry.hasOwnProperty(command)) {
+    else if (commandRegistry.hasOwnProperty(command)) {
       const output = commandRegistry[command](args);
       const outputNone = `Output: None`; // Placeholder for actual command output
       const formattedEntry =
         props.mode === "verbose"
-          ? `Command: ${commandString}\n ${output}`
-          : output;
+          ? `Command: ${commandString}\n ${output.toString()}`
+          : output.toString();
 
       props.setHistory([...props.history, formattedEntry]);
     } else {
@@ -52,21 +56,29 @@ export function REPLInput(props: REPLInputProps) {
     setCommandString("");
   }
 
+  let load_file: REPLFunction;
+  load_file = function (args: Array<string>) {
+    const filePath = args[0];
+    setCurrentFilePath(filePath);
+    // Possibile implementation:
+    return loadHelper(filePath);
+  };
 
-  function load_file(fileName: string) {
-    const [command, filePath] = commandString.split(" ");
-      setCurrentFilePath(filePath);
-      // Possibile implementation:
-      return (
-        <CSVLoader filePath={filePath}></CSVLoader>
-      )
-      console.log(`Loaded dataset from ${filePath}`);
+  function loadHelper(filePath: string) {
+    try {
+      <CSVLoader filePath={filePath}></CSVLoader>;
+    } catch (error) {
+      console.error(error);
+      return "did not load";
+    }
+    console.log(`Loaded dataset from ${filePath}`);
+    return "Loaded";
   }
 
-  function changeMode() {
+  let changeMode: REPLFunction;
+  changeMode = function (args: Array<string>) {
     props.toggleMode();
     const newMode = props.mode === "brief" ? "verbose" : "brief";
-
 
     // Prepare and format the history entry based on the mode BEFORE the toggle.
     const formattedEntry =
@@ -74,27 +86,26 @@ export function REPLInput(props: REPLInputProps) {
         ? `Switched to verbose mode`
         : `Switched to brief mode`;
 
-
     // Update the history with the new entry
     props.setHistory([...props.history, formattedEntry]);
-  }
+    return ""; // TODO: change this
+  };
 
-  function searchFile(fileName: string) {
-    const [, column, value] = commandString.split(" ");
-    // Check if the column is a valid number
-    if (isNaN(parseInt(column))) {
-      // If not a number, find the index of the column name
-      let columnIndex = props.data[0].indexOf(column);
-
-    } else {
-      // If it's a number, parse it to an integer
-      let columnIndex = parseInt(column);
-    }
-    const searchResults = props.data.filter((row) => {
-      // Check if the value matches the search value
-      return row[columnIndex] === value;
-    });
-  }
+  // function searchFile(fileName: string) {
+  //   const [, column, value] = commandString.split(" ");
+  //   // Check if the column is a valid number
+  //   if (isNaN(parseInt(column))) {
+  //     // If not a number, find the index of the column name
+  //     let columnIndex = props.data[0].indexOf(column);
+  //   } else {
+  //     // If it's a number, parse it to an integer
+  //     let columnIndex = parseInt(column);
+  //   }
+  //   const searchResults = props.data.filter((row) => {
+  //     // Check if the value matches the search value
+  //     return row[columnIndex] === value;
+  //   });
+  // }
 
   /**
    * We suggest breaking down this component into smaller components, think about the individual pieces
