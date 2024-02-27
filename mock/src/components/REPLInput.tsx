@@ -51,7 +51,6 @@ export function REPLInput(props: REPLInputProps) {
     setCommandString("");
   }
 
-
     // CHANGED
     if (commandString == "mode") {
       props.toggleMode();
@@ -69,9 +68,9 @@ export function REPLInput(props: REPLInputProps) {
       const [command, filePath] = commandString.split(" ");
       setCurrentFilePath(filePath);
       // Possibile implementation:
-      // return (
-      //   <CSVLoader filePath={filePath}></CSVLoader>
-      // )
+      return (
+        <CSVLoader filePath={filePath}></CSVLoader>
+      )
       console.log(`Loaded dataset from ${filePath}`);
     } else if (commandString.startsWith("search")) {
       const [, column, value] = commandString.split(" ");
