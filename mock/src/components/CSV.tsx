@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Papa from "papaparse";
+import * as fs from 'fs';
 
 interface CSVRow {
   [key: string]: string;
@@ -7,13 +8,27 @@ interface CSVRow {
 
 let globalCSVData: Map<string, CSVRow[]> = new Map<string, CSVRow[]>();
 
-function loadCSV(filePath: string): Promise<CSVRow[] | null> {
-  if (!filePath) return Promise.resolve(null); // Immediately resolve to null if filePath is not provided
+function loadCSV(fileName: string): Promise<CSVRow[] | null> {
+  if (!fileName) return Promise.resolve(null); // Immediately resolve to null if filePath is not provided
 
-  return fetch(`/data/${filePath}`)
+  const folderPath = "mock/data";
+
+  fs.access(`${folderPath}/${fileName}`, fs.constants.F_OK, (err) => {
+    if (err) {
+      console.error(`File ${fileName} does not exist in ${folderPath}`);
+    } else {
+      console.log(`File ${fileName} exists in ${folderPath}`);
+    }
+  });
+
+  return fetch(`/data/${fileName}`)
     .then((response) => {
       if (!response.ok) {
-        throw new Error(`Failed to load ${filePath}: ${response.statusText}`);
+        if (response.status === 404) {
+          throw new Error(`Failed to load file: ${fileName} does not exist.`);
+        } else {
+          throw new Error(`Failed to load ${fileName}: ${response.statusText}`);
+        }
       }
       return response.text();
     })
@@ -24,16 +39,17 @@ function loadCSV(filePath: string): Promise<CSVRow[] | null> {
           header: true,
           skipEmptyLines: true,
           complete: (results) => {
-            console.log(`Dataset from ${filePath} loaded.`);
+            console.log(`Dataset from ${fileName} loaded.`);
             // TODO: Need to make it so this is not typeCasting
             const transformedData = results.data
               .map((rawRow) => transformToCSVRow(rawRow))
               .filter((row) => row !== null) as CSVRow[];
-            globalCSVData.set(filePath, results.data as CSVRow[]);
-            const csvData = globalCSVData.get(filePath);
+            globalCSVData.set(fileName, results.data as CSVRow[]);
+            const csvData = globalCSVData.get(fileName);
+            console.log(csvData)
             if (csvData !== undefined) {
               resolve(csvData);
-            } 
+            }
           },
           error: (error: Error) => {
             console.error("Error parsing the CSV file: ", error);
