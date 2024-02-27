@@ -3,6 +3,10 @@ import "../styles/main.css";
 import { ControlledInput } from "./ControlledInput";
 import CSVLoader from "./CSV";
 
+export interface REPLFunction {
+  (args: Array<string>): string | string[][];
+}
+
 interface REPLInputProps {
   history: string[];
   setHistory: Dispatch<SetStateAction<string[]>>;
@@ -15,11 +19,39 @@ export function REPLInput(props: REPLInputProps) {
   // Remember: let React manage state in your webapp.
   // Manages the contents of the input box
   const [commandString, setCommandString] = useState<string>("");
-
+  const [commandRegistry, setCommandRegistry] = useState<{
+    [key: string]: REPLFunction;
+  }>({});
   const [currentFilePath, setCurrentFilePath] = useState("");
+
+  // Registering new commands:
+  function registerCommand(commandName: string, commandFunction: REPLFunction) {
+    setCommandRegistry((prevState) => ({
+      // creates a new state by expandin the previous state (adding a new KV pair to it):
+      ...prevState,
+      [commandName]: commandFunction,
+    }));
+  }
 
   // This function is triggered when the button is clicked.
   function handleSubmit(commandString: string) {
+    const [command, ...args] = commandString.trim().split(" ");
+    // Check if the command is in map
+    if (commandRegistry.hasOwnProperty(command)) {
+      const output = commandRegistry[command](args);
+      const formattedEntry =
+        props.mode === "verbose"
+          ? `Command: ${commandString}\n ${output}`
+          : output;
+      
+      props.setHistory([...props.history, formattedEntry]);
+    } else {
+      props.setHistory([...props.history, `Command not found: ${command}`]);
+    }
+    setCommandString("");
+  }
+
+
     // CHANGED
     if (commandString == "mode") {
       props.toggleMode();
