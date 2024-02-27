@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import "../styles/main.css";
 import { ControlledInput } from "./ControlledInput";
-import useLoadCSV from "./CSV";
+import CSV from "./CSV";
 
 export interface REPLFunction {
   (args: Array<string>): string | string[][];
@@ -39,11 +39,12 @@ export function REPLInput(props: REPLInputProps) {
     if (commandString == "start") {
       registerCommand("load_file", load_file);
       registerCommand("mode", changeMode);
+      registerCommand("view_file", viewFile);
     }
     // Check if the command is in map
     else if (commandRegistry.hasOwnProperty(command)) {
       const output = commandRegistry[command](args);
-      const outputNone = `Output: None`; // Placeholder for actual command output
+      const outputNone = `None`; // Placeholder for actual command output
       const formattedEntry =
         props.mode === "verbose"
           ? `Command: ${commandString}\n ${output.toString()}`
@@ -66,14 +67,14 @@ export function REPLInput(props: REPLInputProps) {
 
   function loadHelper(filePath: string) {
     try {
-      useLoadCSV(filePath);
+      CSV.loadCSV(filePath);
       // <CSVLoader filePath={filePath}></CSVLoader>;
     } catch (error) {
       console.error(error);
-      return "did not load";
+      return "Could not load file";
     }
     console.log(`Loaded dataset from ${filePath}`);
-    return "Loaded";
+    return "File load was successful";
   }
 
   let changeMode: REPLFunction;
@@ -91,6 +92,24 @@ export function REPLInput(props: REPLInputProps) {
     props.setHistory([...props.history, formattedEntry]);
     return ""; // TODO: change this
   };
+
+  let viewFile: REPLFunction;
+    viewFile = function (args: Array<string>) {
+    const filePath = args[0];
+    return viewHelper(filePath);
+  }
+
+  function viewHelper(filePath: string) {
+    try {
+      CSV.viewCSV(filePath)
+    }
+    catch (error) {
+      console.error(error);
+      return "Could not display file";
+    }
+    console.log(`Viewing dataset from ${filePath}`);
+    return "View file was successful";
+  }
 
   // function searchFile(fileName: string) {
   //   const [, column, value] = commandString.split(" ");

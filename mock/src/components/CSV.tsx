@@ -5,47 +5,69 @@ interface CSVRow {
   [key: string]: string;
 }
 
-let globalCSVData: CSVRow[] = [];
+let globalCSVData: Map<string, CSVRow[]> = new Map<string, CSVRow[]>();
 
-// Refactored as an async function
-async function loadCSV(filePath: string): Promise<CSVRow[] | null> {
-  if (!filePath) return null; // Exit if filePath is not provided
+function loadCSV(filePath: string): Promise<CSVRow[] | null> {
+  if (!filePath) return Promise.resolve(null); // Immediately resolve to null if filePath is not provided
 
-  try {
-    const response = await fetch(`/data/${filePath}`);
-    if (!response.ok) {
-      throw new Error(`Failed to load ${filePath}: ${response.statusText}`);
-    }
-    const csvText = await response.text();
-
-    return new Promise((resolve, reject) => {
-      Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          console.log(`Dataset from ${filePath} loaded.`);
-          // Update globalCSVData here with the parsed results
-          globalCSVData = results.data as CSVRow[];
-          console.log(globalCSVData);
-          resolve(globalCSVData); // Resolve the promise with the updated globalCSVData
-        },
-
-        error: (error: any) => {
-          console.error("Error parsing the CSV file: ", error);
-          reject(error);
-        },
+  return fetch(`/data/${filePath}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to load ${filePath}: ${response.statusText}`);
+      }
+      return response.text();
+    })
+    .then((csvText) => {
+      return new Promise<CSVRow[]>((resolve, reject) => {
+        globalCSVData.clear();
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            console.log(`Dataset from ${filePath} loaded.`);
+            // TODO: Need to make it so this is not typeCasting
+            const transformedData = results.data
+              .map((rawRow) => transformToCSVRow(rawRow))
+              .filter((row) => row !== null) as CSVRow[];
+            globalCSVData.set(filePath, results.data as CSVRow[]);
+            const csvData = globalCSVData.get(filePath);
+            if (csvData !== undefined) {
+              resolve(csvData);
+            } 
+          },
+          error: (error: Error) => {
+            console.error("Error parsing the CSV file: ", error);
+            reject(error);
+          },
+        });
       });
+    })
+    .catch((error) => {
+      console.error("Error loading the CSV file: ", error);
+      return null;
     });
-  } catch (error) {
-    console.error("Error loading the CSV file: ", error);
-    return null;
-  }
+}
+
+//Helper function to transform a row into a CSV Row
+//TODO: Going to change this to not take in any at some point
+
+function transformToCSVRow(rawRow: any): CSVRow | null {
+  return rawRow as CSVRow;
 }
 
 // Function to display the CSV data as an HTML table
-function viewCSV() {
-  if (!globalCSVData) {
-    console.error("No CSV data available to display.");
+function viewCSV(filePath: string) {
+  // Check if a file has been successfully loaded before attempting to display
+  if (!globalCSVData.has(filePath)) {
+    console.error(
+      "No CSV data available for this file. Please load the file first."
+    );
+    return;
+  }
+
+  const data = globalCSVData.get(filePath);
+  if (!data) {
+    console.error("Failed to retrieve data for the file.");
     return;
   }
 
@@ -53,9 +75,11 @@ function viewCSV() {
   let tableHtml = "<table border='1'><thead><tr>";
 
   // Assuming all rows have the same columns, use the first row to create headers
-  Object.keys(globalCSVData[0]).forEach((header) => {
-    tableHtml += `<th>${header}</th>`;
-  });
+  if (data.length > 0) {
+    Object.keys(data[0]).forEach((header) => {
+      tableHtml += `<th>${header}</th>`;
+    });
+  }
   tableHtml += "</tr></thead><tbody>";
 
   // Add data rows
@@ -73,4 +97,4 @@ function viewCSV() {
   //document.getElementById("csvDisplay").innerHTML = tableHtml;
 }
 
-export default {viewCSV, loadCSV};
+export default { viewCSV, loadCSV };
