@@ -37,6 +37,20 @@ export function REPLInput(props: REPLInputProps) {
       const [command, filePath] = commandString.split(" ");
       setCurrentFilePath(filePath);
       console.log(`Loaded dataset from ${filePath}`);
+    } else if (commandString.startsWith("search")) {
+      const [, column, value] = commandString.split(" ");
+      // Check if the column is a valid number
+      if (isNaN(parseInt(column))) {
+        // If not a number, find the index of the column name
+        let columnIndex = props.data[0].indexOf(column);
+      } else {
+        // If it's a number, parse it to an integer
+        let columnIndex = parseInt(column);
+      }
+      const searchResults = props.data.filter((row) => {
+        // Check if the value matches the search value
+        return row[columnIndex] === value;
+      });
     } else {
       // Handle other commands here. For now, let's just add the commandString to the history.
       // In a real application, you might have more complex logic to process commands and produce output.
