@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import "../styles/main.css";
 import { ControlledInput } from "./ControlledInput";
 import CSV from "./CSV";
@@ -18,11 +18,17 @@ interface REPLInputProps {
 export function REPLInput(props: REPLInputProps) {
   // Remember: let React manage state in your webapp.
   // Manages the contents of the input box
-  const [commandString, setCommandString] = useState<string>("");
   const [commandRegistry, setCommandRegistry] = useState<{
     [key: string]: REPLFunction;
   }>({});
+  const [commandString, setCommandString] = useState<string>("");
   const [currentFilePath, setCurrentFilePath] = useState("");
+
+  useEffect(() => {
+    // Register commands when component is mounted (the program is ready to be executed)
+    registerCommand("load_file", load_file);
+    registerCommand("mode", changeMode);
+  }, []);
 
   // Registering new commands:
   function registerCommand(commandName: string, commandFunction: REPLFunction) {
@@ -36,13 +42,8 @@ export function REPLInput(props: REPLInputProps) {
   // This function is triggered when the button is clicked.
   function handleSubmit(commandString: string) {
     const [command, ...args] = commandString.trim().split(" ");
-    if (commandString == "start") {
-      registerCommand("load_file", load_file);
-      registerCommand("mode", changeMode);
-      registerCommand("view_file", viewFile);
-    }
     // Check if the command is in map
-    else if (commandRegistry.hasOwnProperty(command)) {
+    if (commandRegistry.hasOwnProperty(command)) {
       const output = commandRegistry[command](args);
       const outputNone = `None`; // Placeholder for actual command output
       const formattedEntry =

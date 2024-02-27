@@ -32,6 +32,8 @@ Once cloned:
 
 `npm install papaparse @types/papaparse`
 
+For registering new commands: use registerCommand("commandName", REPLFunction);
+
 ### Running Mock
 
 `npm start` — This starts a local server that compiles your code in real time.
