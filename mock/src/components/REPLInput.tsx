@@ -95,16 +95,15 @@ export function REPLInput(props: REPLInputProps) {
   };
 
   let viewFile: REPLFunction;
-    viewFile = function (args: Array<string>) {
+  viewFile = function (args: Array<string>) {
     const filePath = args[0];
     return viewHelper(filePath);
-  }
+  };
 
   function viewHelper(filePath: string) {
     try {
-      CSV.viewCSV(filePath)
-    }
-    catch (error) {
+      CSV.viewCSV(filePath);
+    } catch (error) {
       console.error(error);
       return "Could not display file";
     }
