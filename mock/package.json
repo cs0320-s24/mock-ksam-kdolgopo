@@ -43,6 +43,7 @@
       "testing-library/no-dom-import": "off"
     }
   },
+  "proxy": "http://localhost:5000",
   "browserslist": {
     "production": [
       ">0.2%",

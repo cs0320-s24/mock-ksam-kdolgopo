@@ -9,7 +9,7 @@ export interface REPLFunction {
 
 interface REPLInputProps {
   history: string[];
-  setHistory: Dispatch<SetStateAction<string[]>>;
+  setHistory: Dispatch<SetStateAction<string[] /**|React.ReactNode[]*/>>;
   mode: "brief" | "verbose";
   toggleMode: () => void;
 }
@@ -28,6 +28,7 @@ export function REPLInput(props: REPLInputProps) {
     // Register commands when component is mounted (the program is ready to be executed)
     registerCommand("load_file", load_file);
     registerCommand("mode", changeMode);
+    registerCommand("view_file", viewFile);
   }, []);
 
   // Registering new commands:
@@ -59,23 +60,42 @@ export function REPLInput(props: REPLInputProps) {
   }
 
   let load_file: REPLFunction;
+  // load_file = function (args: Array<string>) {
+  //   const filePath = args[0];
+  //   setCurrentFilePath(filePath);
+  //   // Possibile implementation:
+  //   return loadHelper(filePath);
+  // };
+
   load_file = function (args: Array<string>) {
     const filePath = args[0];
     setCurrentFilePath(filePath);
-    // Possibile implementation:
-    return loadHelper(filePath);
+    // Since loadHelper returns a promise, you can directly return it
+    // Or, if you need to handle the promise:
+    return loadHelper(filePath)
+      .then((result) => {
+        // Handle success, maybe update some UI or state
+        console.log(result); // "File load was successful"
+        return result; // Propagate the success message or transform it as needed
+      })
+      .catch((error) => {
+        // Handle error, maybe show an error message in the UI
+        console.error(error); // Detailed error
+        return "Could not load file"; // Propagate the error message or transform it as needed
+      });
   };
 
+
   function loadHelper(filePath: string) {
-    try {
-      CSV.loadCSV(filePath);
-      // <CSVLoader filePath={filePath}></CSVLoader>;
-    } catch (error) {
-      console.error(error);
-      return "Could not load file";
-    }
-    console.log(`Loaded dataset from ${filePath}`);
-    return "File load was successful";
+    return CSV.loadCSV(filePath)
+      .then(() => {
+        console.log(`Loaded dataset from ${filePath}`);
+        return "File load was successful";
+      })
+      .catch((error) => {
+        console.error(error);
+        return "Could not load file";
+      });
   }
 
   let changeMode: REPLFunction;
@@ -97,18 +117,15 @@ export function REPLInput(props: REPLInputProps) {
   let viewFile: REPLFunction;
   viewFile = function (args: Array<string>) {
     const filePath = args[0];
-    return viewHelper(filePath);
+
+    props.setHistory([...props.history, viewHelper(filePath)]);
+    return "";
   };
 
-  function viewHelper(filePath: string) {
-    try {
-      CSV.viewCSV(filePath);
-    } catch (error) {
-      console.error(error);
-      return "Could not display file";
-    }
-    console.log(`Viewing dataset from ${filePath}`);
-    return "View file was successful";
+  function viewHelper(filePath: string): string {
+    const viewResult = CSV.viewCSV(filePath); // Get the table HTML or an error message
+    props.setHistory([...props.history, viewResult]); // Update history with the result
+    return ""; // Return an empty string or any other value as needed
   }
 
   // function searchFile(fileName: string) {

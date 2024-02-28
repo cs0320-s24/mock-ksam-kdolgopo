@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Papa from "papaparse";
-import * as fs from 'fs';
+import * as fs from "fs";
 
 interface CSVRow {
   [key: string]: string;
@@ -11,24 +11,11 @@ let globalCSVData: Map<string, CSVRow[]> = new Map<string, CSVRow[]>();
 function loadCSV(fileName: string): Promise<CSVRow[] | null> {
   if (!fileName) return Promise.resolve(null); // Immediately resolve to null if filePath is not provided
 
-  const folderPath = "mock/data";
-
-  fs.access(`${folderPath}/${fileName}`, fs.constants.F_OK, (err) => {
-    if (err) {
-      console.error(`File ${fileName} does not exist in ${folderPath}`);
-    } else {
-      console.log(`File ${fileName} exists in ${folderPath}`);
-    }
-  });
-
   return fetch(`/data/${fileName}`)
     .then((response) => {
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error(`Failed to load file: ${fileName} does not exist.`);
-        } else {
-          throw new Error(`Failed to load ${fileName}: ${response.statusText}`);
-        }
+      const contentType = response.headers.get("Content-Type");
+      if (contentType && contentType.includes("text/html")) {
+        throw new Error("File not found");
       }
       return response.text();
     })
@@ -46,7 +33,7 @@ function loadCSV(fileName: string): Promise<CSVRow[] | null> {
               .filter((row) => row !== null) as CSVRow[];
             globalCSVData.set(fileName, results.data as CSVRow[]);
             const csvData = globalCSVData.get(fileName);
-            console.log(csvData)
+            console.log(csvData);
             if (csvData !== undefined) {
               resolve(csvData);
             }
@@ -72,45 +59,44 @@ function transformToCSVRow(rawRow: any): CSVRow | null {
 }
 
 // Function to display the CSV data as an HTML table
-function viewCSV(filePath: string) {
+function viewCSV(filePath: string) : string {
   // Check if a file has been successfully loaded before attempting to display
   if (!globalCSVData.has(filePath)) {
-    console.error(
-      "No CSV data available for this file. Please load the file first."
-    );
-    return;
+   return "No CSV data available for this file. Please load the file first.";
+    
   }
 
   const data = globalCSVData.get(filePath);
   if (!data) {
-    console.error("Failed to retrieve data for the file.");
-    return;
+    return "Failed to retrieve data for the file.";
   }
 
-  // Start building the HTML table
-  let tableHtml = "<table border='1'><thead><tr>";
+
+  // Start building the HTML table with border and optional CSS classes for styling
+  let tableHtml =
+    "<table style='border-collapse: collapse; width: 100%;'><thead><tr>";
 
   // Assuming all rows have the same columns, use the first row to create headers
-  if (data.length > 0) {
-    Object.keys(data[0]).forEach((header) => {
-      tableHtml += `<th>${header}</th>`;
-    });
-  }
+  Object.keys(data[0]).forEach((header) => {
+    tableHtml += `<th>${header}</th>`;
+  });
+
   tableHtml += "</tr></thead><tbody>";
 
   // Add data rows
   globalCSVData.forEach((row) => {
     tableHtml += "<tr>";
     Object.values(row).forEach((value) => {
-      tableHtml += `<td>${value}</td>`;
+      tableHtml += `<td style='border: 1px solid #ddd; padding: 8px;'>${value}</td>`;
     });
     tableHtml += "</tr>";
   });
 
   tableHtml += "</tbody></table>";
 
+  return tableHtml
+
   // Assuming you have a div with an id of 'csvDisplay' for the table
-  //document.getElementById("csvDisplay").innerHTML = tableHtml;
 }
 
 export default { viewCSV, loadCSV };
