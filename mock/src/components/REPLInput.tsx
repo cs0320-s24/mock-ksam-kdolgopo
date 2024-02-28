@@ -26,7 +26,7 @@ export function REPLInput(props: REPLInputProps) {
 
   useEffect(() => {
     // Register commands when component is mounted (the program is ready to be executed)
-    registerCommand("load_file", load_file);
+    //registerCommand("load_file", load_file);
     registerCommand("mode", changeMode);
   }, []);
 
@@ -58,25 +58,31 @@ export function REPLInput(props: REPLInputProps) {
     setCommandString("");
   }
 
-  let load_file: REPLFunction;
-  load_file = function (args: Array<string>) {
-    const filePath = args[0];
-    setCurrentFilePath(filePath);
-    // Possibile implementation:
-    return loadHelper(filePath);
-  };
+  // let load_file: REPLFunction;
+  // load_file = function (args: Array<string>) {
+  //   const filePath = args[0];
+  //   setCurrentFilePath(filePath);
+  //   // Possibile implementation:
+  //   return loadHelper(filePath);
+  // };
 
   function loadHelper(filePath: string) {
-    try {
-      CSV.loadCSV(filePath);
-      // <CSVLoader filePath={filePath}></CSVLoader>;
-    } catch (error) {
-      console.error(error);
-      return "Could not load file";
-    }
-    console.log(`Loaded dataset from ${filePath}`);
-    return "File load was successful";
+    return CSV.loadFile(filePath)
   }
+
+  // const load_file = (args: string[]): string => {
+  //   if (args.length === 0) {
+  //     return "No file name provided";
+  //   }
+
+  //   const fileName = args[0];
+  //   // Call the loadFile function directly and execute the returned function
+  //   const loadMessage = CSV.loadFile(fileName)();
+
+  //   // Assuming you want to update some state or log based on the result
+  //   console.log(loadMessage);
+  //   return loadMessage;
+  // };
 
   let changeMode: REPLFunction;
   changeMode = function (args: Array<string>) {
