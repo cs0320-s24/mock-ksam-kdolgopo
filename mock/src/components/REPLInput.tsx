@@ -7,27 +7,51 @@ export interface REPLFunction {
   (args: Array<string>): string | string[][];
 }
 
-interface REPLInputProps {
+
+
+export interface REPLInputProps extends CSVProps {
   history: string[];
-  setHistory: Dispatch<SetStateAction<string[]>>;
+  setHistory: React.Dispatch<React.SetStateAction<string[]>>;
   mode: "brief" | "verbose";
   toggleMode: () => void;
 }
+
+export interface CSVProps {
+  currentFile: string;
+  setCurrentFile: React.Dispatch<React.SetStateAction<string>>;
+  loadedFileData: string[][];
+  setLoadedFileData: React.Dispatch<React.SetStateAction<string[][]>>;
+}
+
+// Assuming `properties` is supposed to have the structure of `CSVProps`
+let properties: CSVProps = {
+  currentFile: '', // Initial state
+  setCurrentFile: () => {}, // Placeholder function
+  loadedFileData: [],
+  setLoadedFileData: () => {}, // Placeholder function
+};
+
+function csvFunctionalityComponent() {
+  
+  // const { loadCSV, viewCSV } = csvFunctionality();
+}
 // You can use a custom interface or explicit fields or both! An alternative to the current function header might be:
 // REPLInput(history: string[], setHistory: Dispatch<SetStateAction<string[]>>)
-export function REPLInput(props: REPLInputProps) {
+export function REPLInput(props: REPLInputProps, properties: CSVProps) {
   // Remember: let React manage state in your webapp.
+
   // Manages the contents of the input box
   const [commandRegistry, setCommandRegistry] = useState<{
     [key: string]: REPLFunction;
   }>({});
   const [commandString, setCommandString] = useState<string>("");
-  const [currentFilePath, setCurrentFilePath] = useState("");
 
   useEffect(() => {
     // Register commands when component is mounted (the program is ready to be executed)
     //registerCommand("load_file", load_file);
     registerCommand("mode", changeMode);
+    registerCommand("load", loadFile);
+    registerCommand("view", viewFile)
   }, []);
 
   // Registering new commands:
@@ -45,7 +69,6 @@ export function REPLInput(props: REPLInputProps) {
     // Check if the command is in map
     if (commandRegistry.hasOwnProperty(command)) {
       const output = commandRegistry[command](args);
-      const outputNone = `None`; // Placeholder for actual command output
       const formattedEntry =
         props.mode === "verbose"
           ? `Command: ${commandString}\n ${output.toString()}`
@@ -58,31 +81,14 @@ export function REPLInput(props: REPLInputProps) {
     setCommandString("");
   }
 
-  // let load_file: REPLFunction;
-  // load_file = function (args: Array<string>) {
-  //   const filePath = args[0];
-  //   setCurrentFilePath(filePath);
-  //   // Possibile implementation:
-  //   return loadHelper(filePath);
-  // };
+  
 
-  function loadHelper(filePath: string) {
-    return CSV.loadFile(filePath)
+  let loadFile: REPLFunction;
+  loadFile = function (args: Array<string>) {
+    properties.setCurrentFile(args[1])
+    
+    return CSV.loadCSV(properties);
   }
-
-  // const load_file = (args: string[]): string => {
-  //   if (args.length === 0) {
-  //     return "No file name provided";
-  //   }
-
-  //   const fileName = args[0];
-  //   // Call the loadFile function directly and execute the returned function
-  //   const loadMessage = CSV.loadFile(fileName)();
-
-  //   // Assuming you want to update some state or log based on the result
-  //   console.log(loadMessage);
-  //   return loadMessage;
-  // };
 
   let changeMode: REPLFunction;
   changeMode = function (args: Array<string>) {
@@ -102,36 +108,12 @@ export function REPLInput(props: REPLInputProps) {
 
   let viewFile: REPLFunction;
   viewFile = function (args: Array<string>) {
-    const filePath = args[0];
-    return viewHelper(filePath);
+    if (properties.currentFile = args[0]) {
+      return CSV.viewCSV(properties);
+    }
+    return "Please load file before attempting to view."
   };
 
-  function viewHelper(filePath: string) {
-    try {
-      CSV.viewCSV(filePath);
-    } catch (error) {
-      console.error(error);
-      return "Could not display file";
-    }
-    console.log(`Viewing dataset from ${filePath}`);
-    return "View file was successful";
-  }
-
-  // function searchFile(fileName: string) {
-  //   const [, column, value] = commandString.split(" ");
-  //   // Check if the column is a valid number
-  //   if (isNaN(parseInt(column))) {
-  //     // If not a number, find the index of the column name
-  //     let columnIndex = props.data[0].indexOf(column);
-  //   } else {
-  //     // If it's a number, parse it to an integer
-  //     let columnIndex = parseInt(column);
-  //   }
-  //   const searchResults = props.data.filter((row) => {
-  //     // Check if the value matches the search value
-  //     return row[columnIndex] === value;
-  //   });
-  // }
 
   /**
    * We suggest breaking down this component into smaller components, think about the individual pieces
@@ -151,7 +133,6 @@ export function REPLInput(props: REPLInputProps) {
           ariaLabel={"Command input"}
         />
       </fieldset>
-      {/* TODO: Currently this button just counts up, can we make it push the contents of the input box to the history?*/}
       <button onClick={() => handleSubmit(commandString)}> Submit </button>
     </div>
   );
