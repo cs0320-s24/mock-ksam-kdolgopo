@@ -80,9 +80,9 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
 
   let loadFile: REPLFunction;
   loadFile = function (args: Array<string>) {
-    properties.setCurrentFile(args[1]);
-
-    return CSV.loadCSV(properties);
+    const newCurrentFile = args[0];
+    props.setCurrentFile(newCurrentFile);
+    return CSV.loadCSV({ ...props, currentFile: newCurrentFile });
   };
 
   let changeMode: REPLFunction;
@@ -103,8 +103,9 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
 
   let viewFile: REPLFunction;
   viewFile = function (args: Array<string>) {
-    if ((properties.currentFile = args[0])) {
-      return CSV.viewCSV(properties);
+    console.log(props);
+    if (props.currentFile == args[0]) {
+      return CSV.viewCSV(props);
     }
     return "Please load file before attempting to view.";
   };

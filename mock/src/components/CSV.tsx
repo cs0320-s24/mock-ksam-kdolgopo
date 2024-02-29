@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   computers,
@@ -75,8 +74,6 @@ function searchCSV(
   props: CSVProps,
   value: string,
   column: string
-): string[][] {
-  
-}
+): string[][] {}
 
 export default { viewCSV, loadCSV };
