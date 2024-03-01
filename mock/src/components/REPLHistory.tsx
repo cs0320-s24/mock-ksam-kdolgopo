@@ -7,13 +7,15 @@ interface REPLHistoryProps {
   mode: string;
 }
 export function REPLHistory(props: REPLHistoryProps) {
-  if (props.mode === "verbose") {
-    return (
-      <div className="repl-history" aria-label="repl-history">
-        {props.history.map((item, index) => {
-          // Check if the item follows the verbose format
+  return (
+    <div className="repl-history" aria-label="repl-history">
+      {props.history.map((item, index) => {
+        if (item.includes("<table")) {
+          // If the item contains "<table", render it as HTML
+          return <div key={index} dangerouslySetInnerHTML={{ __html: item }} />;
+        } else if (props.mode === "verbose") {
+          // For verbose mode, parse the item and display it accordingly
           const isVerboseFormat = item.startsWith("Command:");
-          // Split the item into two parts only if it's in verbose format
           const parts = isVerboseFormat ? item.split("\n") : [null, item];
           return (
             <div key={index}>
@@ -22,20 +24,11 @@ export function REPLHistory(props: REPLHistoryProps) {
               {parts[1]}
             </div>
           );
-        })}
-      </div>
-    );
-  } else {
-    // Fallback for brief mode or any other mode
-    return (
-      <div className="repl-history" aria-label="repl-history">
-        {props.history.map((item, index) => {
-          // For brief mode, we only show the output. If the format is consistent,
-          // we might need to extract the output part. If it's just output, then display as is.
+        } else {
           const output = item.includes("\n") ? item.split("\n")[1] : item;
           return <p key={index}> Output: {output}</p>;
-        })}
-      </div>
-    );
-  }
+        }
+      })}
+    </div>
+  );
 }

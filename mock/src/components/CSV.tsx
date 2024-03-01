@@ -20,13 +20,12 @@ let files = new Map<string, string[][]>([
 let resultString = "";
 
 function loadCSV(loadedFile: string): string {
-
-  console.log(loadedFile)
+  console.log(loadedFile);
   if (files.has(loadedFile)) {
-      return "Loaded file: " + loadedFile;
-    } else {
-      return "Failed to load file data for " + loadedFile;
-    }
+    return "Loaded file: " + loadedFile;
+  } else {
+    return "Failed to load file data for " + loadedFile;
+  }
 }
 
 // Function to display the CSV data as an HTML table
@@ -35,10 +34,10 @@ function viewCSV(loadedFile: string): string {
   // Check if there's a current file loaded
 
   if (!files.has(loadedFile)) {
-    return 'Failed to retrieve data for the file'
+    return "Failed to retrieve data for the file";
   }
-    // Retrieve the data for the current file
-    const data = files.get(loadedFile);
+  // Retrieve the data for the current file
+  const data = files.get(loadedFile);
   if (!data || data.length === 0) {
     return `Failed to retrieve data for the file ${loadedFile}.`;
   }

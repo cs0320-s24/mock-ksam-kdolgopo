@@ -14,7 +14,7 @@ export interface REPLInputProps extends CSVProps {
   toggleMode: () => void;
 }
 
-let loadedFile: string
+let loadedFile: string;
 
 export interface CSVProps {
   loadedFileData: string[][];
@@ -46,7 +46,6 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     registerCommand("view", viewFile);
   }, []);
 
-
   // Registering new commands:
   function registerCommand(commandName: string, commandFunction: REPLFunction) {
     setCommandRegistry((prevState) => ({
@@ -74,7 +73,7 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     setCommandString("");
   }
 
-  let loadFile : REPLFunction;
+  let loadFile: REPLFunction;
   // Assuming loadFile is defined within the component or is passed the necessary context
   loadFile = function (args: Array<string>) {
     loadedFile = args[0];
@@ -95,7 +94,7 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
 
     // Update the history with the new entry
     props.setHistory([...props.history, formattedEntry]);
-    return ""; // TODO: change this
+    return "Changed mode"; // TODO: change this
   };
 
   let viewFile: REPLFunction;
