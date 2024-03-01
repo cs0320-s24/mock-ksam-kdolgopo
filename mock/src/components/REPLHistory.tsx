@@ -16,12 +16,24 @@ export function REPLHistory(props: REPLHistoryProps) {
         } else if (props.mode === "verbose") {
           // For verbose mode, parse the item and display it accordingly
           const isVerboseFormat = item.startsWith("Command:");
-          const parts = isVerboseFormat ? item.split("\n") : [null, item];
+          let parts;
+          if (isVerboseFormat) {
+            parts = item.split("\n");
+          } else {
+            parts = [item, item];
+          }
           return (
+<<<<<<< Updated upstream
             <div key={index}>
               <strong>{parts[0]}</strong>
               <br />
               {parts[1]}
+=======
+            <div className="output styling" key={index}>
+              <strong aria-label="command">{parts[0]}</strong>
+              <br aria-label="output" />
+              Output: {parts[1]}
+>>>>>>> Stashed changes
             </div>
           );
         } else {

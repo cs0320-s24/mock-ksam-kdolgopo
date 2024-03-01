@@ -15,6 +15,7 @@ export interface REPLInputProps extends CSVProps {
 }
 
 let loadedFile: string;
+let mode: string;
 
 export interface CSVProps {
   loadedFileData: string[][];
@@ -44,6 +45,11 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     registerCommand("mode", changeMode);
     registerCommand("load", loadFile);
     registerCommand("view", viewFile);
+<<<<<<< Updated upstream
+=======
+    registerCommand("search", searchFile);
+    mode = "brief";
+>>>>>>> Stashed changes
   }, []);
 
   // Registering new commands:
@@ -58,6 +64,7 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
   // This function is triggered when the button is clicked.
   function handleSubmit(commandString: string) {
     const [command, ...args] = commandString.trim().split(" ");
+<<<<<<< Updated upstream
     // Check if the command is in map
     if (commandRegistry.hasOwnProperty(command)) {
       const output = commandRegistry[command](args);
@@ -66,9 +73,22 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
           ? `Command: ${commandString}\n ${output.toString()}`
           : output.toString();
 
+=======
+    console.log("props mode ajah");
+    console.log(props.mode);
+    console.log("mode ajkdaf");
+    console.log(mode);
+    if (commandRegistry.hasOwnProperty(command)) {
+      const output = commandRegistry[command](args);
+      const formattedEntry = `Command: ${commandString}\n${output.toString()}`;
+>>>>>>> Stashed changes
       props.setHistory([...props.history, formattedEntry]);
     } else {
-      props.setHistory([...props.history, `Command not found: ${command}`]);
+      const formattedEntry =
+        props.mode === "verbose"
+          ? `Command: ${commandString}\n${"Command not found"}`
+          : "Command not found";
+      props.setHistory([...props.history, formattedEntry]);
     }
     setCommandString("");
   }
@@ -81,6 +101,7 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     return CSV.loadCSV(loadedFile);
   };
 
+<<<<<<< Updated upstream
   let changeMode: REPLFunction;
   changeMode = function (args: Array<string>) {
     props.toggleMode();
@@ -93,6 +114,29 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
         : `Switched to brief mode`;
 
     // Update the history with the new entry
+=======
+  // Definition of REPL function for changing the display mode
+  let changeMode: REPLFunction = function (args: Array<string>) {
+    // Determine the new mode before toggling
+    console.log("Beginning of changeMode");
+    console.log(mode);
+    var newMode = "";
+    if (mode === "brief") {
+      newMode = "verbose";
+    } else if (mode === "verbose") {
+      newMode = "brief";
+    }
+    mode = newMode;
+
+    props.setMode(mode);
+
+    // Create a formatted entry based on the new mode
+    const formattedEntry = `Switched to ${mode} mode`;
+
+    console.log(formattedEntry);
+
+    // Update the history with this new entry
+>>>>>>> Stashed changes
     props.setHistory([...props.history, formattedEntry]);
     return "Changed mode"; // TODO: change this
   };
