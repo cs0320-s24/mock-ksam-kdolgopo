@@ -14,24 +14,19 @@ export interface REPLInputProps extends CSVProps {
   toggleMode: () => void;
 }
 
+let loadedFile: string
+
 export interface CSVProps {
-  currentFile: string;
-  setCurrentFile: React.Dispatch<React.SetStateAction<string>>;
   loadedFileData: string[][];
   setLoadedFileData: React.Dispatch<React.SetStateAction<string[][]>>;
 }
 
 // Assuming `properties` is supposed to have the structure of `CSVProps`
 let properties: CSVProps = {
-  currentFile: "", // Initial state
-  setCurrentFile: () => {}, // Placeholder function
   loadedFileData: [],
   setLoadedFileData: () => {}, // Placeholder function
 };
 
-function csvFunctionalityComponent() {
-  // const { loadCSV, viewCSV } = csvFunctionality();
-}
 // You can use a custom interface or explicit fields or both! An alternative to the current function header might be:
 // REPLInput(history: string[], setHistory: Dispatch<SetStateAction<string[]>>)
 export function REPLInput(props: REPLInputProps, properties: CSVProps) {
@@ -50,6 +45,7 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     registerCommand("load", loadFile);
     registerCommand("view", viewFile);
   }, []);
+
 
   // Registering new commands:
   function registerCommand(commandName: string, commandFunction: REPLFunction) {
@@ -78,11 +74,12 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     setCommandString("");
   }
 
-  let loadFile: REPLFunction;
+  let loadFile : REPLFunction;
+  // Assuming loadFile is defined within the component or is passed the necessary context
   loadFile = function (args: Array<string>) {
-    const newCurrentFile = args[0];
-    props.setCurrentFile(newCurrentFile);
-    return CSV.loadCSV({ ...props, currentFile: newCurrentFile });
+    loadedFile = args[0];
+
+    return CSV.loadCSV(loadedFile);
   };
 
   let changeMode: REPLFunction;
@@ -103,9 +100,8 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
 
   let viewFile: REPLFunction;
   viewFile = function (args: Array<string>) {
-    console.log(props);
-    if (props.currentFile == args[0]) {
-      return CSV.viewCSV(props);
+    if (loadedFile == args[0]) {
+      return CSV.viewCSV(loadedFile);
     }
     return "Please load file before attempting to view.";
   };

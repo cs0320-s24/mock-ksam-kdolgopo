@@ -18,7 +18,6 @@ export default function REPL() {
   const [history, setHistory] = useState<string[]>([]);
   const [mode, setMode] = useState<"brief" | "verbose">("brief");
   const [loadedFileData, setLoadedFileData] = useState<string[][]>([]);
-  const [currentFile, setCurrentFile] = useState("");
 
   const toggleMode = () => {
     setMode((currentMode) => (currentMode === "brief" ? "verbose" : "brief"));
@@ -36,8 +35,6 @@ export default function REPL() {
         setHistory={setHistory}
         mode={mode}
         toggleMode={toggleMode}
-        currentFile={currentFile} // Assuming you have this state managed in your parent component
-        setCurrentFile={setCurrentFile} // And the setter function for currentFile
         loadedFileData={loadedFileData} // Assuming you have this state managed as well
         setLoadedFileData={setLoadedFileData} // And the setter function for loadedFileData
       />

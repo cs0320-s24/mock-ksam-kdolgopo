@@ -19,30 +19,28 @@ let files = new Map<string, string[][]>([
 
 let resultString = "";
 
-function loadCSV(props: CSVProps): string {
-  if (files.has(props.currentFile)) {
-    const fileData = files.get(props.currentFile); // fileData might be string[][] or undefined
-    // Check if fileData is defined before setting it
-    if (fileData) {
-      props.setLoadedFileData(fileData); // Set the loaded file data only if it's not undefined
-      return "Loaded file: " + props.currentFile;
+function loadCSV(loadedFile: string): string {
+
+  console.log(loadedFile)
+  if (files.has(loadedFile)) {
+      return "Loaded file: " + loadedFile;
     } else {
-      return "Failed to load file data for " + props.currentFile;
+      return "Failed to load file data for " + loadedFile;
     }
-  } else {
-    return "File not found";
-  }
 }
 
 // Function to display the CSV data as an HTML table
 
-function viewCSV(props: CSVProps): string {
+function viewCSV(loadedFile: string): string {
   // Check if there's a current file loaded
 
-  // Retrieve the data for the current file
-  const data = files.get(props.currentFile);
+  if (!files.has(loadedFile)) {
+    return 'Failed to retrieve data for the file'
+  }
+    // Retrieve the data for the current file
+    const data = files.get(loadedFile);
   if (!data || data.length === 0) {
-    return `Failed to retrieve data for the file ${props.currentFile}.`;
+    return `Failed to retrieve data for the file ${loadedFile}.`;
   }
 
   // Start building the HTML table with border and optional CSS classes for styling
@@ -70,10 +68,10 @@ function viewCSV(props: CSVProps): string {
   return tableHtml;
 }
 
-function searchCSV(
-  props: CSVProps,
-  value: string,
-  column: string
-): string[][] {}
+// function searchCSV(
+//   props: CSVProps,
+//   value: string,
+//   column: string
+// ): string[][] {}
 
 export default { viewCSV, loadCSV };
