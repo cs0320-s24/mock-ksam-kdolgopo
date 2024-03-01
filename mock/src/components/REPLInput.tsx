@@ -74,6 +74,8 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     setCommandString("");
   }
 
+
+
   let searchFile: REPLFunction;
   searchFile = function (args: Array<string>) {
     if (args[0] !== loadedFile) {
@@ -103,7 +105,7 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
 
     // Update the history with the new entry
     props.setHistory([...props.history, formattedEntry]);
-    return ""; // TODO: change this
+    return "Changed mode"; // TODO: change this
   };
 
   let viewFile: REPLFunction;
