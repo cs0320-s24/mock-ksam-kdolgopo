@@ -44,6 +44,7 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     registerCommand("mode", changeMode);
     registerCommand("load", loadFile);
     registerCommand("view", viewFile);
+    registerCommand("search", searchFile);
   }, []);
 
   // Registering new commands:
@@ -72,6 +73,16 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     }
     setCommandString("");
   }
+
+
+
+  let searchFile: REPLFunction;
+  searchFile = function (args: Array<string>) {
+    if (args[0] !== loadedFile) {
+      return "Please load file before searching";
+    }
+    return CSV.searchCSV(loadedFile, args);
+  };
 
   let loadFile: REPLFunction;
   // Assuming loadFile is defined within the component or is passed the necessary context

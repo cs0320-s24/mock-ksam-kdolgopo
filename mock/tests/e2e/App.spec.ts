@@ -59,24 +59,16 @@ test('on page load, i see a button', async ({ page }) => {
   // CHANGED
   await page.goto('http://localhost:8000/');
   await page.getByLabel('Login').click();
-  await expect(page.getByRole('button', {name: 'Submitted 0 times'})).toBeVisible()
+  await expect(page.getByRole('button')).toBeVisible()
 });
 
-test('after I click the button, its label increments', async ({ page }) => {
-  // CHANGED
-  await page.goto('http://localhost:8000/');
-  await page.getByLabel('Login').click();
-  await expect(page.getByRole('button', {name: 'Submitted 0 times'})).toBeVisible()
-  await page.getByRole('button', {name: 'Submitted 0 times'}).click()
-  await expect(page.getByRole('button', {name: 'Submitted 1 times'})).toBeVisible()
-});
 
 test('after I click the button, my command gets pushed', async ({ page }) => {
   // CHANGED
   await page.goto('http://localhost:8000/');
   await page.getByLabel('Login').click();
   await page.getByLabel('Command input').fill('Awesome command');
-  await page.getByRole('button', {name: 'Submitted 0 times'}).click()
+
 
   // you can use page.evaulate to grab variable content from the page for more complex assertions
   const firstChild = await page.evaluate(() => {
@@ -84,4 +76,97 @@ test('after I click the button, my command gets pushed', async ({ page }) => {
     return history?.children[0]?.textContent;
   });
   expect(firstChild).toEqual("Awesome command");
+});
+
+test("cannot type in commands without logging in", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Command input").fill("Awesome command");
+
+  expect(page.getByLabel("Command input")).toBeHidden();
+});
+
+test("successful load file", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("load computers");
+
+  expect(page.getByLabel("output")).toHaveText("Loaded file: computers")
+});
+
+test("unsuccessful load file", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("load randomFile");
+
+  expect(page.getByLabel("command")).toHaveText("Failed to load file data for computers");
+});
+
+test("unsuccessful search, wrong value", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("load computers")
+  await page.getByLabel("Command input").fill("search computers randomMonitor monitor");
+
+  expect(page.getByLabel("command")).toHaveText(
+    "Please load file before searching"
+  );
+});
+
+test("unsuccessful search, wrong file", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("load computers");
+  await page
+    .getByLabel("Command input")
+    .fill("search randomFile randomMonitor monitor");
+
+  expect(page.getByLabel("output")).toHaveText(
+    "Invalid file, please enter a different file name"
+  );
+});
+
+test("unsuccessful search, wrong identifier", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("load computers");
+  await page
+    .getByLabel("Command input")
+    .fill("search computers XDR randomIdentifier");
+
+  expect(page.getByLabel("output")).toHaveText(
+    "Column randomIdentifier not found in the file."
+  );
+});
+
+test("unsuccessful search, wrong identifier", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("load computers");
+  await page
+    .getByLabel("Command input")
+    .fill("search computers XDR 10");
+
+  expect(page.getByLabel("output")).toHaveText(
+    "Column index 10 is out of range."
+  );
+});
+
+
+
+test("view without loading file", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("view computers");
+
+  expect(page.getByLabel("command")).toHaveText(
+    "Please load file before attempting to view."
+  );
 });

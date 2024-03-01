@@ -67,10 +67,53 @@ function viewCSV(loadedFile: string): string {
   return tableHtml;
 }
 
-// function searchCSV(
-//   props: CSVProps,
-//   value: string,
-//   column: string
-// ): string[][] {}
+function searchCSV(fileName: string, args: string[]): string[][] | string {
+  // Check if the file exists
+  if (!files.has(fileName)) {
+    return "Invalid file, please enter a different file name";
+  }
 
-export default { viewCSV, loadCSV };
+  // Retrieve the file data
+  const fileData: string[][] = files.get(fileName) as string[][];
+
+  // Extract the search value and column identifier from args
+  const searchValue = args[1];
+  let columnIdentifier = args[2];
+
+  // Initialize an array to hold the matching rows
+  const matchingRows: string[][] = [];
+
+  // Determine if the column identifier is a name or an index
+  let columnIndex: number;
+  if (isNaN(Number(columnIdentifier))) {
+    // Column identifier is a name, find the index of the column
+    columnIndex = fileData[0].indexOf(columnIdentifier);
+    if (columnIndex === -1) {
+      return `Column "${columnIdentifier}" not found in the file.`;
+    }
+  } else {
+    // Column identifier is an index
+    columnIndex = parseInt(columnIdentifier);
+    // Validate the column index
+    if (columnIndex < 0 || columnIndex >= fileData[0].length) {
+      return `Column index ${columnIndex} is out of range.`;
+    }
+  }
+
+  // Search for the value in the specified column
+  fileData.forEach((row, index) => {
+    if (index > 0) {
+      // Assuming the first row contains headers
+      const cellValue = row[columnIndex];
+      if (cellValue.includes(searchValue)) {
+        matchingRows.push(row);
+      }
+    }
+  });
+
+  return matchingRows.length > 0
+    ? matchingRows
+    : `No matches found for "${searchValue}" in column "${columnIdentifier}".`;
+}
+
+export default { viewCSV, loadCSV , searchCSV};

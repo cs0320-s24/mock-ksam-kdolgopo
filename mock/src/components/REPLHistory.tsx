@@ -6,6 +6,11 @@ interface REPLHistoryProps {
   history: string[];
   mode: string;
 }
+interface HistoryItem {
+  content: string;
+  type: "text" | "html"; // Add more types as needed
+}
+
 export function REPLHistory(props: REPLHistoryProps) {
   return (
     <div className="repl-history" aria-label="repl-history">
@@ -19,13 +24,14 @@ export function REPLHistory(props: REPLHistoryProps) {
           const parts = isVerboseFormat ? item.split("\n") : [null, item];
           return (
             <div key={index}>
-              <strong>{parts[0]}</strong>
-              <br />
+              <strong aria-label="command">{parts[0]}</strong>
+              <br aria-label="output" />
               {parts[1]}
             </div>
           );
         } else {
           const output = item.includes("\n") ? item.split("\n")[1] : item;
+
           return <p key={index}> Output: {output}</p>;
         }
       })}
