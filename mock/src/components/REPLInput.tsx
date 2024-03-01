@@ -14,7 +14,7 @@ export interface REPLInputProps extends CSVProps {
   toggleMode: () => void;
 }
 
-let loadedFile: string
+let loadedFile: string;
 
 export interface CSVProps {
   loadedFileData: string[][];
@@ -44,8 +44,8 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     registerCommand("mode", changeMode);
     registerCommand("load", loadFile);
     registerCommand("view", viewFile);
+    registerCommand("search", searchFile);
   }, []);
-
 
   // Registering new commands:
   function registerCommand(commandName: string, commandFunction: REPLFunction) {
@@ -74,7 +74,15 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     setCommandString("");
   }
 
-  let loadFile : REPLFunction;
+  let searchFile: REPLFunction;
+  searchFile = function (args: Array<string>) {
+    if (args[0] !== loadedFile) {
+      return "Please load file before searching";
+    }
+    return CSV.searchCSV(loadedFile, args);
+  };
+
+  let loadFile: REPLFunction;
   // Assuming loadFile is defined within the component or is passed the necessary context
   loadFile = function (args: Array<string>) {
     loadedFile = args[0];

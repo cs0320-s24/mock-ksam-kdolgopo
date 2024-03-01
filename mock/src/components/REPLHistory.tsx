@@ -6,6 +6,11 @@ interface REPLHistoryProps {
   history: string[];
   mode: string;
 }
+interface HistoryItem {
+  content: string;
+  type: "text" | "html"; // Add more types as needed
+}
+
 export function REPLHistory(props: REPLHistoryProps) {
   if (props.mode === "verbose") {
     return (
@@ -17,8 +22,8 @@ export function REPLHistory(props: REPLHistoryProps) {
           const parts = isVerboseFormat ? item.split("\n") : [null, item];
           return (
             <div key={index}>
-              <strong>{parts[0]}</strong>
-              <br />
+              <strong aria-label="command">{parts[0]}</strong>
+              <br aria-label="output" />
               {parts[1]}
             </div>
           );
@@ -33,7 +38,12 @@ export function REPLHistory(props: REPLHistoryProps) {
           // For brief mode, we only show the output. If the format is consistent,
           // we might need to extract the output part. If it's just output, then display as is.
           const output = item.includes("\n") ? item.split("\n")[1] : item;
-          return <p key={index}> Output: {output}</p>;
+          return (
+            <p aria-label="output" key={index}>
+              {" "}
+              Output: {output}
+            </p>
+          );
         })}
       </div>
     );
