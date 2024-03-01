@@ -1,6 +1,5 @@
-
 export const computers = [
-  ["Operating System", "Keyboard", "monitor"],
+  ["Operating System", "Size", "Monitor"],
   ["MacOS", "14in", "XDR"],
   ["Windows", "12in", "LCD"],
 ];
@@ -69,4 +68,3 @@ export const ri_town_city_income = [
   ["Westerly", "81,051.00", "107,013.00", "46,913.00"],
   ["Woonsocket", "48,822.00", "58,896.00", "26,561.00"],
 ];
-

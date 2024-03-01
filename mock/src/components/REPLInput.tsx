@@ -3,70 +3,90 @@ import "../styles/main.css";
 import { ControlledInput } from "./ControlledInput";
 import CSV from "./CSV";
 
+/**
+ * Interface defining the structure of a REPL function.
+ * @param args An array of strings representing the arguments passed to the function.
+ * @returns A string or a 2D string array, depending on the function's operation.
+ */
 export interface REPLFunction {
   (args: Array<string>): string | string[][];
 }
 
+/**
+ * Interface extending CSVProps to include properties specific to REPLInput component.
+ */
 export interface REPLInputProps extends CSVProps {
   history: string[];
-  setHistory: React.Dispatch<React.SetStateAction<string[]>>;
-  mode: "brief" | "verbose";
-  toggleMode: () => void;
+  setHistory: Dispatch<SetStateAction<string[]>>;
+  mode: string;
+  setMode: Dispatch<SetStateAction<string>>;
 }
 
-let loadedFile: string;
-
+/**
+ * Interface defining the structure for CSV-related properties.
+ */
 export interface CSVProps {
   loadedFileData: string[][];
-  setLoadedFileData: React.Dispatch<React.SetStateAction<string[][]>>;
+  setLoadedFileData: Dispatch<SetStateAction<string[][]>>;
 }
 
-// Assuming `properties` is supposed to have the structure of `CSVProps`
+// Placeholder for loaded file name
+let loadedFile: string;
+
+// Placeholder for CSV properties
 let properties: CSVProps = {
   loadedFileData: [],
-  setLoadedFileData: () => {}, // Placeholder function
+  setLoadedFileData: () => {}, // Empty function as a placeholder
 };
 
-// You can use a custom interface or explicit fields or both! An alternative to the current function header might be:
-// REPLInput(history: string[], setHistory: Dispatch<SetStateAction<string[]>>)
+/**
+ * The REPLInput function component handles the input part of the REPL (Read-Eval-Print Loop) interface.
+ * It allows users to enter commands to be executed and displays the results.
+ *
+ * @param props The props passed to the REPLInput component, including history, mode, and functions to manage state.
+ * @param properties CSV-related properties, including loaded data and a setter for that data.
+ */
 export function REPLInput(props: REPLInputProps, properties: CSVProps) {
-  // Remember: let React manage state in your webapp.
-
-  // Manages the contents of the input box
+  // State to manage the registry of commands and the current command string
   const [commandRegistry, setCommandRegistry] = useState<{
     [key: string]: REPLFunction;
   }>({});
   const [commandString, setCommandString] = useState<string>("");
 
+  // Effect hook to register commands when the component mounts
   useEffect(() => {
-    // Register commands when component is mounted (the program is ready to be executed)
-    //registerCommand("load_file", load_file);
     registerCommand("mode", changeMode);
     registerCommand("load", loadFile);
     registerCommand("view", viewFile);
     registerCommand("search", searchFile);
   }, []);
 
-  // Registering new commands:
+  /**
+   * Registers a new command in the command registry.
+   *
+   * @param commandName The name of the command to register.
+   * @param commandFunction The function to execute when the command is called.
+   */
   function registerCommand(commandName: string, commandFunction: REPLFunction) {
     setCommandRegistry((prevState) => ({
-      // creates a new state by expandin the previous state (adding a new KV pair to it):
       ...prevState,
       [commandName]: commandFunction,
     }));
   }
 
-  // This function is triggered when the button is clicked.
+  /**
+   * Handles the submission of a command by the user.
+   *
+   * @param commandString The command string entered by the user.
+   */
   function handleSubmit(commandString: string) {
     const [command, ...args] = commandString.trim().split(" ");
-    // Check if the command is in map
     if (commandRegistry.hasOwnProperty(command)) {
       const output = commandRegistry[command](args);
       const formattedEntry =
         props.mode === "verbose"
-          ? `Command: ${commandString}\n ${output.toString()}`
+          ? `Command: ${commandString}\n${output.toString()}`
           : output.toString();
-
       props.setHistory([...props.history, formattedEntry]);
     } else {
       props.setHistory([...props.history, `Command not found: ${command}`]);
@@ -74,58 +94,60 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     setCommandString("");
   }
 
-
-
-  let searchFile: REPLFunction;
-  searchFile = function (args: Array<string>) {
+  // Definition of REPL function for searching within a loaded file
+  let searchFile: REPLFunction = function (args: Array<string>) {
     if (args[0] !== loadedFile) {
       return "Please load file before searching";
     }
     return CSV.searchCSV(loadedFile, args);
   };
 
-  let loadFile: REPLFunction;
-  // Assuming loadFile is defined within the component or is passed the necessary context
-  loadFile = function (args: Array<string>) {
+  // Definition of REPL function for loading a file
+  let loadFile: REPLFunction = function (args: Array<string>) {
     loadedFile = args[0];
-
     return CSV.loadCSV(loadedFile);
   };
 
-  let changeMode: REPLFunction;
-  changeMode = function (args: Array<string>) {
-    props.toggleMode();
-    const newMode = props.mode === "brief" ? "verbose" : "brief";
+  // Definition of REPL function for changing the display mode
+  let changeMode: REPLFunction = function (args: Array<string>) {
+    // Determine the new mode before toggling
+    var newMode = "";
+    if (props.mode === "brief") {
+      newMode = "verbose";
+    } else {
+      newMode = "brief";
+    }
 
-    // Prepare and format the history entry based on the mode BEFORE the toggle.
-    const formattedEntry =
-      props.mode === "brief"
-        ? `Switched to verbose mode`
-        : `Switched to brief mode`;
+    console.log("Beginning of changeMode")
 
-    // Update the history with the new entry
+    console.log(props.mode);
+
+    console.log(newMode)
+
+    props.setMode(newMode);
+
+    // Create a formatted entry based on the new mode
+    const formattedEntry = `Switched to ${newMode} mode`;
+
+    console.log(formattedEntry)
+
+    // Update the history with this new entry
     props.setHistory([...props.history, formattedEntry]);
-    return "Changed mode"; // TODO: change this
+
+    // Return the formatted entry to indicate which mode it has been switched to
+    return formattedEntry;
   };
 
-  let viewFile: REPLFunction;
-  viewFile = function (args: Array<string>) {
+  // Definition of REPL function for viewing a loaded file
+  let viewFile: REPLFunction = function (args: Array<string>) {
     if (loadedFile == args[0]) {
       return CSV.viewCSV(loadedFile);
     }
     return "Please load file before attempting to view.";
   };
 
-  /**
-   * We suggest breaking down this component into smaller components, think about the individual pieces
-   * of the REPL and how they connect to each other...
-   */
   return (
     <div className="repl-input">
-      {/* This is a comment within the JSX. Notice that it's a TypeScript comment wrapped in
-            braces, so that React knows it should be interpreted as TypeScript */}
-      {/* I opted to use this HTML tag; you don't need to. It structures multiple input fields
-            into a single unit, which makes it easier for screenreaders to navigate. */}
       <fieldset>
         <legend>Enter a command:</legend>
         <ControlledInput
@@ -134,7 +156,9 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
           ariaLabel={"Command input"}
         />
       </fieldset>
-      <button onClick={() => handleSubmit(commandString)}> Submit </button>
+      <button className="button" onClick={() => handleSubmit(commandString)}>
+        Submit
+      </button>
     </div>
   );
 }
