@@ -61,7 +61,6 @@ test("on page load, i see a button", async ({ page }) => {
   await expect(page.getByLabel("Sign Out")).toBeVisible();
 });
 
-
 // test("successful load file", async ({ page }) => {
 //   // CHANGED
 //   await page.goto("http://localhost:8000/");
@@ -113,9 +112,8 @@ test("unsuccessful search, wrong file", async ({ page }) => {
     .getByLabel("Command input")
     .fill("search randomFile randomMonitor monitor");
 
-  expect(
-    page.getByText("Invalid file, please enter a different file name")
-  ).toBeVisible;
+  expect(page.getByText("Invalid file, please enter a different file name"))
+    .toBeVisible;
 });
 
 test("unsuccessful search, wrong identifier", async ({ page }) => {
@@ -134,9 +132,45 @@ test("view without loading file", async ({ page }) => {
   await page.getByLabel("Login").click();
   await page.getByLabel("Command input").fill("view computers");
 
-  expect(
-    page.getByText("Please load file before attempting to view.")
-  ).toBeVisible;
+  expect(page.getByText("Please load file before attempting to view."))
+    .toBeVisible;
 });
 
+test("successful search", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("load computers");
+  await page.getByLabel("Command input").fill("search computers 1 2");
 
+  expect(page.getByText("Loaded file: computers")).toBeVisible;
+  expect(page.getByText('Output: No matches found for "1" in column "2"'))
+    .toBeVisible;
+});
+
+test("mode", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("mode");
+  await page.getByLabel("Command input").fill("mode");
+  await page.getByLabel("Command input").fill("mode");
+  await page.getByLabel("Command input").fill("mode");
+  await page.getByLabel("Command input").fill("mode");
+
+  expect(page.getByText("Switched to brief mode")).toBeVisible;
+  expect(page.getByText("Switched to verbose mode")).toBeVisible;
+});
+
+test("view", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("load computers");
+  await page.getByLabel("Command input").fill("view computers");
+
+  expect(page.getByText("Command: view computers")).toBeVisible;
+  expect(page.getByText("Operating System")).toBeVisible;
+  expect(page.getByText("MacOS")).toBeVisible;
+  expect(page.getByText("Windows")).toBeVisible;
+});
