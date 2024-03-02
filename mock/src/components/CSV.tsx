@@ -7,10 +7,16 @@ import {
 
 import { CSVProps } from "../../src/components/REPLInput";
 
+/**
+ * Interface defining the structure of a REPL function.
+ * @param args An array of strings representing the arguments passed to the function.
+ * @returns A string or a 2D string array, depending on the function's operation.
+ */
 export interface REPLFunction {
   (args: Array<string>): string | string[][];
 }
 
+// Initialize a map to hold the file names and their corresponding data arrays.
 let files = new Map<string, string[][]>([
   ["computers", computers],
   ["dol_ri_earnings_disparity", dol_ri_earnings_disparity],
@@ -19,37 +25,42 @@ let files = new Map<string, string[][]>([
 
 let resultString = "";
 
+/**
+ * Loads a CSV file based on the provided file name.
+ * @param loadedFile The name of the file to load.
+ * @returns A string indicating whether the file was successfully loaded or not.
+ */
 function loadCSV(loadedFile: string): string {
   console.log(loadedFile);
   if (files.has(loadedFile)) {
-    return "Loaded file " + loadedFile;
+    return "Loaded file: " + loadedFile;
   } else {
     return "Failed to load file data for " + loadedFile;
   }
 }
 
-// Function to display the CSV data as an HTML table
-
+/**
+ * Generates an HTML string representing a table of the CSV data for a loaded file.
+ * @param loadedFile The name of the loaded file.
+ * @returns A string containing HTML markup for the data table if the file exists, otherwise an error message.
+ */
 function viewCSV(loadedFile: string): string {
-  // Check if there's a current file loaded
-
   if (!files.has(loadedFile)) {
     return "Failed to retrieve data for the file";
   }
-  // Retrieve the data for the current file
   const data = files.get(loadedFile);
   if (!data || data.length === 0) {
     return `Failed to retrieve data for the file ${loadedFile}.`;
   }
 
-  // Start building the HTML table with border and optional CSS classes for styling
-  let tableHtml =
-    "<table style='border-collapse: collapse; width: 100%;'><thead><tr>";
+  // Start the table HTML with adjusted styles and headers directly from the first row of data
+  let tableHtml = `<table className='table' style='border-collapse: collapse; width: 80%; margin: auto; border-radius: 10px; overflow: hidden;'><thead><tr style='background-color: #503c3c; color: white;'>`;
+  data[0].forEach((header) => {
+    // Use the first row of your data array for headers
+    tableHtml += `<th style='border: 1px solid white; padding: 8px;'>${header}</th>`;
+  });
+  tableHtml += "</tr></thead><tbody>";
 
-<<<<<<< Updated upstream
-  // Assuming all rows have the same columns, use the first row to create headers
-  Object.keys(data[0]).forEach((header) => {
-=======
   // Skip the first row when iterating over rows since it's used for headers
   data.slice(1).forEach((row) => {
     tableHtml += "<tr>";
@@ -62,6 +73,9 @@ function viewCSV(loadedFile: string): string {
 
   return tableHtml;
 }
+
+
+
 
 /**
  * Searches a loaded CSV file for rows that match a given value in a specified column and returns an HTML table of matching rows.
@@ -105,35 +119,27 @@ function searchCSV(fileName: string, args: string[]): string {
   }
 
   // Start building the HTML table string for matching rows
-  let tableHtml =
-    "<table className='table' style='border-collapse: collapse; width: 100%;'><thead><tr>";
+  let tableHtml = "<table className='table' style='border-collapse: collapse; width: 100%;'><thead><tr>";
 
   // Use the headers from the original file data
   fileData[0].forEach((header) => {
->>>>>>> Stashed changes
     tableHtml += `<th>${header}</th>`;
   });
-
   tableHtml += "</tr></thead><tbody>";
 
-  // Add data rows
-  data.forEach((row) => {
+  // Add matching rows to the table
+  matchingRows.forEach((row) => {
     tableHtml += "<tr>";
-    Object.values(row).forEach((value) => {
-      tableHtml += `<td style='border: 1px solid #ddd; padding: 8px;'>${value}</td>`;
+    row.forEach((cell) => {
+      tableHtml += `<td style='border: 1px solid #ddd; padding: 8px;'>${cell}</td>`;
     });
     tableHtml += "</tr>";
   });
-
   tableHtml += "</tbody></table>";
 
   return tableHtml;
 }
 
-// function searchCSV(
-//   props: CSVProps,
-//   value: string,
-//   column: string
-// ): string[][] {}
+// Export the functions to be used in other parts of the application.
+export default { viewCSV, loadCSV, searchCSV };
 
-export default { viewCSV, loadCSV };
