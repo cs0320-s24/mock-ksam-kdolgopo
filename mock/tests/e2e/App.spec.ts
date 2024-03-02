@@ -136,7 +136,7 @@ test("view without loading file", async ({ page }) => {
     .toBeVisible;
 });
 
-test("successful search", async ({ page }) => {
+test("unsuccessful search", async ({ page }) => {
   // CHANGED
   await page.goto("http://localhost:8000/");
   await page.getByLabel("Login").click();
@@ -146,6 +146,19 @@ test("successful search", async ({ page }) => {
   expect(page.getByText("Loaded file: computers")).toBeVisible;
   expect(page.getByText('Output: No matches found for "1" in column "2"'))
     .toBeVisible;
+});
+
+test("successful search", async ({ page }) => {
+  // CHANGED
+  await page.goto("http://localhost:8000/");
+  await page.getByLabel("Login").click();
+  await page.getByLabel("Command input").fill("load computers");
+  await page.getByLabel("Command input").fill("search computers 1 1");
+
+  expect(page.getByText("Loaded file: computers")).toBeVisible;
+  expect(page.getByText("Command: search computers 14 1")).toBeVisible;
+  expect(page.getByText("MacOS")).toBeVisible;
+  expect(page.getByText("14in")).toBeVisible;
 });
 
 test("mode", async ({ page }) => {
