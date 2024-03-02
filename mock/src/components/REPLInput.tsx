@@ -32,6 +32,7 @@ export interface CSVProps {
 
 // Placeholder for loaded file name
 let loadedFile: string;
+let mode: string;
 
 // Placeholder for CSV properties
 let properties: CSVProps = {
@@ -59,6 +60,7 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
     registerCommand("load", loadFile);
     registerCommand("view", viewFile);
     registerCommand("search", searchFile);
+    mode = "brief";
   }, []);
 
   /**
@@ -81,15 +83,20 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
    */
   function handleSubmit(commandString: string) {
     const [command, ...args] = commandString.trim().split(" ");
+    console.log("props mode ajah");
+    console.log(props.mode);
+    console.log("mode ajkdaf");
+    console.log(mode);
     if (commandRegistry.hasOwnProperty(command)) {
       const output = commandRegistry[command](args);
-      const formattedEntry =
-        props.mode === "verbose"
-          ? `Command: ${commandString}\n${output.toString()}`
-          : output.toString();
+      const formattedEntry = `Command: ${commandString}\n${output.toString()}`;
       props.setHistory([...props.history, formattedEntry]);
     } else {
-      props.setHistory([...props.history, `Command not found: ${command}`]);
+      const formattedEntry =
+        props.mode === "verbose"
+          ? `Command: ${commandString}\n${"Command not found"}`
+          : "Command not found";
+      props.setHistory([...props.history, formattedEntry]);
     }
     setCommandString("");
   }
@@ -111,25 +118,22 @@ export function REPLInput(props: REPLInputProps, properties: CSVProps) {
   // Definition of REPL function for changing the display mode
   let changeMode: REPLFunction = function (args: Array<string>) {
     // Determine the new mode before toggling
+    console.log("Beginning of changeMode");
+    console.log(mode);
     var newMode = "";
-    if (props.mode === "brief") {
+    if (mode === "brief") {
       newMode = "verbose";
-    } else {
+    } else if (mode === "verbose") {
       newMode = "brief";
     }
+    mode = newMode;
 
-    console.log("Beginning of changeMode")
-
-    console.log(props.mode);
-
-    console.log(newMode)
-
-    props.setMode(newMode);
+    props.setMode(mode);
 
     // Create a formatted entry based on the new mode
-    const formattedEntry = `Switched to ${newMode} mode`;
+    const formattedEntry = `Switched to ${mode} mode`;
 
-    console.log(formattedEntry)
+    console.log(formattedEntry);
 
     // Update the history with this new entry
     props.setHistory([...props.history, formattedEntry]);
