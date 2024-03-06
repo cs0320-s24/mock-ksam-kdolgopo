@@ -1,0 +1,25 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #ad88c6;
+  min-height: 8vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(1px + 2vmin);
+  color: #503C3C;
+}
+
+/* New style for LoginButton */
+.App-header button {
+  padding: 8px 15px;
+  font-size: 16px;
+  color: white;
+  background-color: #503C3C; /* Example button color */
+  border: white;
+  border-radius: 5px;
+  cursor: pointer;
+}

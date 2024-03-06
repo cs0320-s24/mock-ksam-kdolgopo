@@ -1,0 +1,60 @@
+/*
+  This is a reasonable starting point for the CSS in Mock.
+  Positioning in CSS can sometimes be annoying to manage, so we've opted to 
+  give you this starter CSS. Feel free to modify it as you wish, though.
+*/
+
+.repl {
+  position: relative;
+  min-height: 95vh;
+  background-color: #ad88c6;
+}
+
+.repl-history {
+  height: 55vh;
+  margin: auto;
+  display: block;
+  overflow: scroll;
+}
+
+.repl-history .output {
+  color: white; /* Sets the text color to white */
+}
+
+.repl-input {
+  margin: auto;
+  height: 10vh;
+}
+
+/* Updated style for button within repl-input to match the App-header button */
+.repl-input .button {
+  padding: 8px 15px;
+  font-size: 16px;
+  color: white;
+  background-color: #503c3c; /* Example button color */
+  border: none; /* Updated from 'border: white;' to 'border: none;' for clarity */
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.repl-input legend {
+  color: white; /* Sets the legend text color to white */
+}
+
+.repl-command-box {
+  width: 90%;
+  margin: auto;
+  display: block;
+  background-color: #503c3c;
+  color: white; /* Sets the input text color to white */
+}
+
+.repl-command-box::placeholder {
+  color: white; /* Sets the placeholder text color to white */
+}
+
+button {
+  margin: auto;
+  display: block;
+  margin-bottom: auto;
+}
